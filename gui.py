@@ -104,7 +104,7 @@ if __name__ == '__main__':
    frame1= Frame(root)
    frame1.pack(side=BOTTOM)
    frame1.pack(side=RIGHT)
-   label2=Label(frame1,text="created by sushil varande", font=('courier', 15) )
+   label2=Label(frame1, font=('courier', 15) )
    label2.pack()
 
 root.mainloop()
