@@ -1,6 +1,9 @@
 from tkinter import *
 from tkinter import colorchooser
 import PIL.ImageGrab as ImageGrab
+from tkinter import filedialog
+from tkinter import messagebox
+
 
 root = Tk()
 
@@ -60,7 +63,7 @@ sizeLabel.grid(row=2 , column=0)
 
 
 
-# Frame : COLORBOX FRame
+# Frame : COLORBOX inside FRame 1
 colorBoxFrame = Frame(frame1 , height=100 , width=100 , relief=SUNKEN,borderwidth=3)
 colorBoxFrame.grid(row=0 , column=2)
 
@@ -94,7 +97,7 @@ previousColor2Button.grid(row=2, column=0)
 
 
 
-# Frame => ColorsFrame
+# Frame => ColorsFrame inside frame 1
 colorsFrame = Frame(frame1 , height=100 , width=100 , relief=SUNKEN,borderwidth=3)
 colorsFrame.grid(row=0 , column=3)
 
@@ -129,18 +132,42 @@ PurpleButton.grid(row=2,column=2)
 
 
 
-# frame => save image Frame
+# frame => save image Frame inside frame 1
 saveImageFrame = Frame(frame1 , height=100 , width=100 , relief=SUNKEN,borderwidth=3)
 saveImageFrame.grid(row=0,column=4)
 
 def saveImage():
-    x = root.winfo_rootx()
-    y = root.winfo_rooty()+100
-    img = ImageGrab.grab(bbox=(x,y,x+1100,y+500))
-    img.show()
+    try:
+        fileLocation = filedialog.asksaveasfilename(defaultextension="jpg")
+        x = root.winfo_rootx()
+        y = root.winfo_rooty()+100
+        img = ImageGrab.grab(bbox=(x,y,x+1100,y+500))
+        img.save(fileLocation)
+        showImage = messagebox.askyesno("Paint App", "Do uh want to open image...?")
+        if showImage:
+            img.show()
+    except Exception as e:
+        messagebox.showinfo("Paint app:","Error occured")
+
 
 saveImageButton = Button(saveImageFrame, text="save" ,width=10, bg="white", command=saveImage)
 saveImageButton.grid(row=0,column=0)
+
+def clear():
+    if messagebox.askokcancel("Paint app", "Are uh sure ...?"):
+        canvas.delete('all')
+   
+def createNew():
+    if messagebox.askokcancel("Paint app", "Do uh want to save it before you clear ...?"):
+        saveImage()
+    clear()
+    
+
+newImageButton = Button(saveImageFrame, text="New" ,width=10, bg="white", command=createNew)
+newImageButton.grid(row=1,column=0)
+
+clearImageButton = Button(saveImageFrame, text="Clear" ,width=10, bg="white", command=clear)
+clearImageButton.grid(row=2,column=0)
 
 
 
