@@ -95,13 +95,12 @@ class Main:
         def restore_cursor(self, e):
             self.c.config(cursor='arrow')
         def create_rectangle(self, x1, y1, x2, y2, fill="white", outline="black", width_outline=1):
-            self.c.create_rectangle(x1, y1, x2, y2, fill=fill, outline=outline, width=width_outline)
+             self.c.create_rectangle(x1, y1, x2, y2, fill=fill, outline=outline, width=width_outline)
+
         def create_oval(self, x1, y1, x2, y2, fill="white", outline="black", width_outline=1):
-            self.c.create_oval(x1, y1, x2, y2, fill=fill, outline=outline, width=width_outline)
-        def create_polygon(self, points, fill="white", outline="black", width_outline=1):
-            self.c.create_polygon(points, fill=fill, outline=outline, width=width_outline)
-        def create_line(self, x1, y1, x2, y2, fill="black", width=1):
-            self.c.create_line(x1, y1, x2, y2, fill=fill, width=width)
+             self.c.create_oval(x1, y1, x2, y2, fill=fill, outline=outline, width=width_outline)
+
+     
    
         
 
@@ -143,7 +142,61 @@ class Main:
             optionmenu.add_separator()
             optionmenu.add_command(label='Undo', command=self.undo, accelerator='Ctrl+Z')
             optionmenu.add_command(label='Redo', command=self.redo, accelerator='Ctrl+Y')
-            
+            shape_menu = Menu(menu)
+            menu.add_cascade(label='Shapes', menu=shape_menu)
+            shape_menu.add_command(label='Rectangle', command=self.draw_rectangle)
+            shape_menu.add_command(label='Oval', command=self.draw_oval)
+        
+
+        def draw_rectangle(self):
+            self.start_x = None
+            self.start_y = None
+            self.rect = None
+
+            def on_press(event):
+                self.start_x = self.c.canvasx(event.x)
+                self.start_y = self.c.canvasy(event.y)
+
+            def on_drag(event):
+                cur_x = self.c.canvasx(event.x)
+                cur_y = self.c.canvasy(event.y)
+
+                if self.rect:
+                    self.c.coords(self.rect, self.start_x, self.start_y, cur_x, cur_y)
+                else:
+                    self.rect = self.create_rectangle(self.start_x, self.start_y, cur_x, cur_y, fill="white", outline="black", width_outline=2)
+            def on_release(event):
+                self.rect = None
+
+
+            self.c.bind('<ButtonPress-1>', on_press)
+            self.c.bind('<B1-Motion>', on_drag)
+            self.c.bind('<ButtonRelease-1>', on_release)    
+        def draw_oval(self):
+            self.start_x = None
+            self.start_y = None
+            self.oval = None
+
+            def on_press(event):
+                self.start_x = self.c.canvasx(event.x)
+                self.start_y = self.c.canvasy(event.y)
+
+            def on_drag(event):
+                cur_x = self.c.canvasx(event.x)
+                cur_y = self.c.canvasy(event.y)
+
+                if self.oval:
+                    self.c.coords(self.oval, self.start_x, self.start_y, cur_x, cur_y)
+                else:
+                    self.oval = self.create_oval(self.start_x, self.start_y, cur_x, cur_y, fill="white", outline="black", width_outline=2)
+            def on_release(event):
+                self.oval = None
+
+            self.c.bind('<ButtonPress-1>', on_press)
+            self.c.bind('<B1-Motion>', on_drag)
+            self.c.bind('<ButtonRelease-1>', on_release)
+ 
+
 
 
 if __name__ == '__main__':
