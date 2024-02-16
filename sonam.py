@@ -1,105 +1,220 @@
 from tkinter import *
-from tkinter import ttk, colorchooser, filedialog
+from tkinter import colorchooser
+import PIL.ImageGrab as ImageGrab
+from tkinter import filedialog
+from tkinter import messagebox
 
-class Main:
-    def __init__(self, master):
-        self.master = master
-        self.color_fg = 'black'
-        self.color_bg = 'white'
-        self.old_x = None
-        self.old_y = None
-        self.penwidth = 5
-        self.eraser_mode = False  # Added variable to track eraser mode
-        self.draw_widgets()
-        self.c.bind('<B1-Motion>', self.paint)
-        self.c.bind('<ButtonRelease-1>', self.reset_screen)
 
-    def paint(self, e):
-        if self.old_x and self.old_y:
-            if not self.eraser_mode:
-                self.c.create_line(self.old_x, self.old_y, e.x, e.y, width=self.penwidth, fill=self.color_fg,
-                                    capstyle="round", smooth=True)
-            else:
-                self.c.create_line(self.old_x, self.old_y, e.x, e.y, width=self.penwidth, fill=self.color_bg,
-                                    capstyle="round", smooth=True)
-        self.old_x = e.x
-        self.old_y = e.y
+root = Tk()
 
-    def reset_screen(self, e):
-        self.old_x = None
-        self.old_y = None
+root.title("Paint application")
+root.geometry("1100x600")
 
-    def change_penwidth(self, e):
-        self.penwidth = e
 
-    def toggle_eraser(self):
-        self.eraser_mode = not self.eraser_mode
-        if self.eraser_mode:
-            self.toggle_button.config(text='Brush Mode', bg='#3498db', fg='white')
-        else:
-            self.toggle_button.config(text='Eraser Mode', bg='#e74c3c', fg='white')
 
-    def save_file(self):
-        file = filedialog.asksaveasfilename(filetypes=[('Portable Network Graphics', '*.png')])
-        if file:
-            x = self.master.winfo_rootx() + self.c.winfo_x()
-            y = self.master.winfo_rooty() + self.c.winfo_y()
-            x1 = x + self.c.winfo_width()
-            y1 = y + self.c.winfo_height()
+# Frame 1 => Tools
+frame1 = Frame(root, height=100, width=1100, relief=SUNKEN,borderwidth=3)
+frame1.grid(row=0,column=0, sticky=NW)
 
-            self.c.postscript(file=file + '.eps', colormode='color')
-            PIL.Image.open(file + '.eps').convert("RGB").save(file + '.png', "PNG")
-            self.c.delete("all")
 
-    def clear_screen(self):
-        self.c.delete(ALL)
+# frame => tools insize frame 1
+toolsFrame = Frame(frame1 , height=100 , width=100)
+toolsFrame.grid(row=0 , column=0)
 
-    def change_fgcolor(self):
-        self.color_fg = colorchooser.askcolor(color=self.color_fg)[1]
+# variables
+stroke_size = IntVar()
+stroke_size.set(1)
+stroke_color = StringVar()
+stroke_color.set("black")
 
-    def change_bgcolor(self):
-        self.color_bg = colorchooser.askcolor(color=self.color_bg)[1]
-        self.c['bg'] = self.color_bg
+def usePencil():
+    stroke_color.set("black")
+    canvas["cursor"] = "arrow"
 
-    def draw_widgets(self):
-        self.controls = Frame(self.master, padx=5, pady=5, bg="#3498db")
-        self.label = Label(self.controls, text='Pen Width: ', font=('Arial', 15), bg='#3498db', fg='white')
-        self.label.grid(row=0, column=0)
+def useEraser():
+    stroke_color.set("white")
+    canvas["cursor"] = DOTBOX
 
-        style = ttk.Style()
-        style.configure("TScale", troughcolor="#3498db", sliderthickness=15, sliderlength=20, background="#3498db")
-        self.slider = ttk.Scale(self.controls, from_=5, to=100, command=self.change_penwidth, orient=HORIZONTAL, style="TScale")
-        self.slider.set(self.penwidth)
-        self.slider.grid(row=0, column=1, ipadx=30)
+pencilButton = Button(toolsFrame , text="Pencil",width=10, command=usePencil)
+pencilButton.grid(row=0 , column=0)
 
-        self.toggle_button = Button(self.controls, text='Eraser Mode', command=self.toggle_eraser, bg='#e74c3c', fg='white')
-        self.toggle_button.grid(row=0, column=2, padx=10)
+eraserButton = Button(toolsFrame , text="Eraser",width=10, command=useEraser)
+eraserButton.grid(row=1 , column=0)
 
-        self.controls.pack(fill=X)
+toolsLabel = Label(toolsFrame , text="Tools",width=10)
+toolsLabel.grid(row=3 , column=0)
 
-        self.c = Canvas(self.master, width=800, height=600, bg=self.color_bg)
-        self.c.pack(fill=BOTH, expand=True)
 
-        menu = Menu(self.master)
-        self.master.config(menu=menu)
-        filemenu = Menu(menu)
-        menu.add_cascade(label='File', menu=filemenu)
-        filemenu.add_command(label='Save As', command=self.save_file)
 
-        colormenu = Menu(menu)
-        menu.add_cascade(label='Colors', menu=colormenu)
-        colormenu.add_command(label='Brush Color', command=self.change_fgcolor)
-        colormenu.add_command(label='Background Color', command=self.change_bgcolor)
+# Frame => sizeframe inside frame 1
+sizeFrame = Frame(frame1 , height=100 , width=100,relief=SUNKEN,borderwidth=3 )
+sizeFrame.grid(row=0 , column=1)
 
-        optionmenu = Menu(menu)
-        menu.add_cascade(label='Options', menu=optionmenu)
-        optionmenu.add_command(label='Clear Canvas', command=self.clear_screen)
-        optionmenu.add_command(label='Exit', command=self.master.destroy)
+defaultButton = Button(sizeFrame , text="Default",width=10, command=useEraser)
+defaultButton.grid(row=0 , column=0)
 
-if __name__ == '__main__':
-    root = Tk()
-    root.geometry("800x700+100+100")
-    root.title('PaintGui Application')
-    root.configure(bg="#3498db")
-    obj = Main(root)
-    root.mainloop()
+options = [1,2,3,4,5,8,10]
+
+sizeList = OptionMenu(sizeFrame ,stroke_size, *options)
+sizeList.grid(row=1 , column=0)
+
+sizeLabel = Label(sizeFrame , text="size",width=10)
+sizeLabel.grid(row=2 , column=0)
+
+
+
+# Frame : COLORBOX inside FRame 1
+colorBoxFrame = Frame(frame1 , height=100 , width=100 , relief=SUNKEN,borderwidth=3)
+colorBoxFrame.grid(row=0 , column=2)
+
+# variables
+previousColor = StringVar()
+previousColor.set("white")
+previousColor2 = StringVar()
+previousColor2.set("white")
+
+def selectColor():
+    selectedColor = colorchooser.askcolor("blue" , title="select Color")
+    if selectedColor[1] == None:
+        stroke_color.set("black")
+    else:
+        stroke_color.set(selectedColor[1])   
+        previousColor2.set(previousColor.get())
+        previousColor.set(selectedColor[1])
+
+        previousColorButton["bg"] = previousColor.get()
+        previousColor2Button["bg"] = previousColor2.get()
+
+
+colorBoxButton = Button(colorBoxFrame , text="Select Color", width=10, command=selectColor)
+colorBoxButton.grid(row=0, column=0)
+
+previousColorButton = Button(colorBoxFrame , text="Previous", width=10, command=lambda:stroke_color.set(previousColor.get()))
+previousColorButton.grid(row=1, column=0)
+
+previousColor2Button = Button(colorBoxFrame , text="Previous2", width=10, command=lambda:stroke_color.set(previousColor2.get()))
+previousColor2Button.grid(row=2, column=0)
+
+
+
+# Frame => ColorsFrame inside frame 1
+colorsFrame = Frame(frame1 , height=100 , width=100 , relief=SUNKEN,borderwidth=3)
+colorsFrame.grid(row=0 , column=3)
+
+redButton = Button(colorsFrame, text="red" ,width=10, bg="red", command=lambda:stroke_color.set("red"))
+redButton.grid(row=0,column=0)
+
+greenButton = Button(colorsFrame, text="green" ,width=10, bg="green", command=lambda:stroke_color.set("green"))
+greenButton.grid(row=1,column=0)
+
+blueButton = Button(colorsFrame, text="blue" ,width=10, bg="blue", command=lambda:stroke_color.set("blue"))
+blueButton.grid(row=2,column=0)
+
+
+cyanButton = Button(colorsFrame, text="cyan" ,width=10, bg="cyan", command=lambda:stroke_color.set("cyan"))
+cyanButton.grid(row=0,column=1)
+
+pinkButton = Button(colorsFrame, text="pink" ,width=10, bg="pink", command=lambda:stroke_color.set("pink"))
+pinkButton.grid(row=1,column=1)
+
+tanButton = Button(colorsFrame, text="tan" ,width=10, bg="tan", command=lambda:stroke_color.set("tan"))
+tanButton.grid(row=2,column=1)
+
+
+yellowButton = Button(colorsFrame, text="yellow" ,width=10, bg="yellow", command=lambda:stroke_color.set("yellow"))
+yellowButton.grid(row=0,column=2)
+
+orangeButton = Button(colorsFrame, text="orange" ,width=10, bg="orange", command=lambda:stroke_color.set("orange"))
+orangeButton.grid(row=1,column=2)
+
+PurpleButton = Button(colorsFrame, text="purple" ,width=10, bg="purple", command=lambda:stroke_color.set("purple"))
+PurpleButton.grid(row=2,column=2)
+
+
+
+# frame => save image Frame inside frame 1
+saveImageFrame = Frame(frame1 , height=100 , width=100 , relief=SUNKEN,borderwidth=3)
+saveImageFrame.grid(row=0,column=4)
+
+def saveImage():
+    try:
+        fileLocation = filedialog.asksaveasfilename(defaultextension="jpg")
+        x = root.winfo_rootx()
+        y = root.winfo_rooty()+100
+        img = ImageGrab.grab(bbox=(x,y,x+1100,y+500))
+        img.save(fileLocation)
+        showImage = messagebox.askyesno("Paint App", "Do uh want to open image...?")
+        if showImage:
+            img.show()
+    except Exception as e:
+        messagebox.showinfo("Paint app:","Error occured")
+
+
+saveImageButton = Button(saveImageFrame, text="save" ,width=10, bg="white", command=saveImage)
+saveImageButton.grid(row=0,column=0)
+
+def clear():
+    if messagebox.askokcancel("Paint app", "Are uh sure ...?"):
+        canvas.delete('all')
+
+def createNew():
+    if messagebox.askokcancel("Paint app", "Do uh want to save it before you clear ...?"):
+        saveImage()
+    clear()
+
+
+newImageButton = Button(saveImageFrame, text="New" ,width=10, bg="white", command=createNew)
+newImageButton.grid(row=1,column=0)
+
+clearImageButton = Button(saveImageFrame, text="Clear" ,width=10, bg="white", command=clear)
+clearImageButton.grid(row=2,column=0)
+
+
+
+
+
+
+# Frame 2 = > Canvas
+frame2 = Frame(root, height=500, width=1100, bg="yellow")
+frame2.grid(row=1,column=0)
+
+canvas = Canvas(frame2,height=500,width=1100,bg="white")
+canvas.grid(row=0,column=0)
+
+
+
+
+#variables for pencil
+prevPoint =[0,0]
+currentPoint = [0,0]
+
+def paint(event):
+
+    global prevPoint
+    global currentPoint
+    x = event.x
+    y = event.y
+    currentPoint = [x,y]
+    #canvas.create_oval(x, y, x+5, y+5, fill="black")
+
+    if prevPoint != [0,0]:
+        canvas.create_polygon(prevPoint[0] , prevPoint[1] , currentPoint[0], currentPoint[1], fill=stroke_color.get(),outline=stroke_color.get(), width=stroke_size.get())
+        # instead of writing line we are writing polygon to have ssmooth lines
+
+    prevPoint = currentPoint
+
+    if event.type == "5" :
+        prevPoint = [0,0]
+
+
+def paintRight(event):
+    x = event.x
+    y = event.y
+    canvas.create_arc(x,y,x+stroke_size.get() , y+stroke_size.get() , fill=stroke_color.get() , outline=stroke_color.get() , width=stroke_size.get())
+
+
+canvas.bind("<B1-Motion>" , paint)
+canvas.bind("<ButtonRelease-1>",paint)
+
+root.resizable(False,False)   
+root.mainloop()
