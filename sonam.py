@@ -1,24 +1,22 @@
 from tkinter import *
+from PyQt5.QtWidgets import QApplication, QPushButton, QVBoxLayout, QWidget
 from tkinter import colorchooser
 import PIL.ImageGrab as ImageGrab
 from tkinter import filedialog
 from tkinter import messagebox
 
 
+
+
 root = Tk()
-
-root.title("Paint application")
-root.geometry("1100x600")
-
-
-
+root.geometry("%dx%d+%d+%d" % (root.winfo_screenwidth(), root.winfo_screenheight(), 0, 0))
 # Frame 1 => Tools
 frame1 = Frame(root, height=100, width=1100, relief=SUNKEN,borderwidth=3)
 frame1.grid(row=0,column=0, sticky=NW)
 
 
-# frame => tools insize frame 1
-toolsFrame = Frame(frame1 , height=100 , width=100)
+# frame => tools inside frame 1
+toolsFrame = Frame(frame1 , height=0 , width=0 )
 toolsFrame.grid(row=0 , column=0)
 
 # variables
@@ -29,11 +27,11 @@ stroke_color.set("black")
 
 def usePencil():
     stroke_color.set("black")
-    canvas["cursor"] = "arrow"
+    canvas["cursor"] = "plus"
 
 def useEraser():
     stroke_color.set("white")
-    canvas["cursor"] = DOTBOX
+    canvas["cursor"] = "circle"
 
 pencilButton = Button(toolsFrame , text="Pencil",width=10, command=usePencil)
 pencilButton.grid(row=0 , column=0)
@@ -41,8 +39,6 @@ pencilButton.grid(row=0 , column=0)
 eraserButton = Button(toolsFrame , text="Eraser",width=10, command=useEraser)
 eraserButton.grid(row=1 , column=0)
 
-toolsLabel = Label(toolsFrame , text="Tools",width=10)
-toolsLabel.grid(row=3 , column=0)
 
 
 
@@ -171,17 +167,12 @@ clearImageButton.grid(row=2,column=0)
 
 
 
-
-
-
 # Frame 2 = > Canvas
-frame2 = Frame(root, height=500, width=1100, bg="yellow")
+frame2 = Frame(root, height=500, width=500)
 frame2.grid(row=1,column=0)
 
-canvas = Canvas(frame2,height=500,width=1100,bg="white")
+canvas = Canvas(frame2,height=1500,width=1200,bg="white")
 canvas.grid(row=0,column=0)
-
-
 
 
 #variables for pencil
@@ -216,5 +207,8 @@ def paintRight(event):
 canvas.bind("<B1-Motion>" , paint)
 canvas.bind("<ButtonRelease-1>",paint)
 
-root.resizable(False,False)   
+root.resizable(False,False)
+
+
+
 root.mainloop()
