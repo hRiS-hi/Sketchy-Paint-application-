@@ -349,10 +349,9 @@ class Window(QMainWindow):
         """
         Initializes the layout on which we can change the Join setting of the brush.
         """
-        """def setBrushJoin(self):
+        def setBrushJoin(self):
             self.brush_join_type = QGroupBox("Brush join")
-            self.brush_join_type.setMaximumHeight(100)"""
-
+            self.brush_join_type.setMaximumHeight(100)
         """
         Creates the radio buttons to let us make a choice between these 3 options.
         Each one is connected to a method which will change the setting depending on which
@@ -599,16 +598,11 @@ class Window(QMainWindow):
     before the last modification he made.
     """
     def undo(self):
-      
-       
-        
-       
-
         cursor = mydb.cursor()
         cursor.execute(select_image_sql)
         select_image_sql = "SELECT image FROM gallery ORDER BY id DESC LIMIT 1"
 
-        cursor.execute(select_image_sqly, (id,))
+        cursor.execute(select_image_sql, (id,))
         record = cursor.fetchall()
         for row in record:
             image = row[1]
